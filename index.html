@@ -98,11 +98,11 @@
 </div>
 
 <script>
-  // Set tanggal default hari ini sesuai zona waktu perangkat lokal
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
+  // Set tanggal default hari ini (Anti-Cache Local Date)
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
   document.getElementById('tanggal').value = `${year}-${month}-${day}`;
 
   function insertTemplate(text) {
@@ -167,7 +167,6 @@
   const form = document.getElementById('logbookForm');
   const submitBtn = document.getElementById('submitBtn');
 
-  // URL WEB APP GOOGLE APPS SCRIPT ANDA
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfR9-xhpxKHgNcVW1A-lNE2fuRXf753022TwVcuh2UFSHKC9YtXrykO2jPdHEJePq_/exec';
 
   form.addEventListener('submit', async (e) => {
@@ -179,10 +178,29 @@
     const files = fotoInput.files;
     let photosArray = [];
 
+    // Loop & Potong Nama File Menjadi 15 Karakter Pertama di Sini (Sisi Frontend/HP)
     for (let i = 0; i < files.length; i++) {
-      let base64String = await toBase64(files[i]);
+      let file = files[i];
+      let namaAsli = file.name;
+      
+      let ekstensi = namaAsli.split('.').pop().toLowerCase();
+      if (!ekstensi || ekstensi.length > 4) ekstensi = "jpg";
+      
+      let namaTanpaEkstensi = namaAsli.substring(0, namaAsli.lastIndexOf('.'));
+      
+      // Ambil tepat 15 karakter pertama dari nama asli
+      let namaBaru = namaTanpaEkstensi.substring(0, 15).trim();
+      
+      if (!namaBaru) {
+        namaBaru = document.getElementById('tanggal').value.replace(/-/g, "");
+      }
+      
+      let nomorUrut = (files.length > 1) ? "_" + (i + 1) : "";
+      let finalFileName = namaBaru + nomorUrut + "." + ekstensi;
+
+      let base64String = await toBase64(file);
       photosArray.push({
-        name: files[i].name,
+        name: finalFileName,
         base64: base64String
       });
     }
@@ -203,7 +221,8 @@
       if(data.result === 'success') {
         alert('Logbook dan dokumentasi foto berhasil tersimpan!');
         form.reset();
-        // Reset tanggal kembali ke hari ini secara presisi
+        
+        // Reset tanggal ke hari ini secara presisi
         const freshDate = new Date();
         document.getElementById('tanggal').value = `${freshDate.getFullYear()}-${String(freshDate.getMonth() + 1).padStart(2, '0')}-${String(freshDate.getDate()).padStart(2, '0')}`;
       } else {
