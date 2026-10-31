@@ -85,12 +85,6 @@
         <small id="speechStatus" class="text-muted d-block mt-1" style="font-size: 11px;"></small>
       </div>
 
-      <!-- 4. Upload Foto Geotag (Bisa Banyak Sekaligus) -->
-      <div class="mb-3">
-        <label for="foto" class="form-label fw-bold small">Upload Foto Geotag <span class="text-muted fw-normal">(Bisa pilih lebih dari satu)</span></label>
-        <input type="file" class="form-control form-control-sm" id="foto" accept="image/*" multiple>
-      </div>
-
       <!-- Submit Button -->
       <button type="submit" id="submitBtn" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">Simpan ke Google Sheets</button>
     </form>
@@ -169,47 +163,15 @@
 
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfR9-xhpxKHgNcVW1A-lNE2fuRXf753022TwVcuh2UFSHKC9YtXrykO2jPdHEJePq_/exec';
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener('submit', (e) => {
     e.preventDefault();
     submitBtn.disabled = true;
-    submitBtn.innerText = "Mengunggah foto & menyimpan...";
-
-    const fotoInput = document.getElementById('foto');
-    const files = fotoInput.files;
-    let photosArray = [];
-
-    // Loop & Potong Nama File Menjadi 15 Karakter Pertama di Sini (Sisi Frontend/HP)
-    for (let i = 0; i < files.length; i++) {
-      let file = files[i];
-      let namaAsli = file.name;
-      
-      let ekstensi = namaAsli.split('.').pop().toLowerCase();
-      if (!ekstensi || ekstensi.length > 4) ekstensi = "jpg";
-      
-      let namaTanpaEkstensi = namaAsli.substring(0, namaAsli.lastIndexOf('.'));
-      
-      // Ambil tepat 15 karakter pertama dari nama asli
-      let namaBaru = namaTanpaEkstensi.substring(0, 15).trim();
-      
-      if (!namaBaru) {
-        namaBaru = document.getElementById('tanggal').value.replace(/-/g, "");
-      }
-      
-      let nomorUrut = (files.length > 1) ? "_" + (i + 1) : "";
-      let finalFileName = namaBaru + nomorUrut + "." + ekstensi;
-
-      let base64String = await toBase64(file);
-      photosArray.push({
-        name: finalFileName,
-        base64: base64String
-      });
-    }
+    submitBtn.innerText = "Menyimpan...";
 
     const payload = {
       tanggal: document.getElementById('tanggal').value,
       rhk: document.getElementById('rhk').value,
-      catatan: document.getElementById('catatan').value,
-      photos: photosArray
+      catatan: document.getElementById('catatan').value
     };
 
     fetch(SCRIPT_URL, {
@@ -219,7 +181,7 @@
     .then(res => res.json())
     .then(data => {
       if(data.result === 'success') {
-        alert('Logbook dan dokumentasi foto berhasil tersimpan!');
+        alert('Logbook harian berhasil tersimpan!');
         form.reset();
         
         // Reset tanggal ke hari ini secara presisi
@@ -237,13 +199,6 @@
       submitBtn.disabled = false;
       submitBtn.innerText = "Simpan ke Google Sheets";
     });
-  });
-
-  const toBase64 = file => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
   });
 </script>
 </body>
