@@ -13,7 +13,6 @@
     .btn-mic.recording { animation: pulse 1s infinite; background-color: #198754; }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     
-    /* Styling untuk Tombol Template Cepat */
     .template-chips {
       display: flex;
       flex-wrap: wrap;
@@ -86,10 +85,10 @@
         <small id="speechStatus" class="text-muted d-block mt-1" style="font-size: 11px;"></small>
       </div>
 
-      <!-- 4. Upload Foto Geotag (Opsional) -->
+      <!-- 4. Upload Foto Geotag (Bisa Banyak Sekaligus) -->
       <div class="mb-3">
-        <label for="foto" class="form-label fw-bold small">Upload Foto Geotag <span class="text-muted fw-normal">(Opsional)</span></label>
-        <input type="file" class="form-control form-control-sm" id="foto" accept="image/*">
+        <label for="foto" class="form-label fw-bold small">Upload Foto Geotag <span class="text-muted fw-normal">(Bisa pilih lebih dari satu)</span></label>
+        <input type="file" class="form-control form-control-sm" id="foto" accept="image/*" multiple>
       </div>
 
       <!-- Submit Button -->
@@ -102,7 +101,6 @@
   // Set tanggal default hari ini
   document.getElementById('tanggal').valueAsDate = new Date();
 
-  // Fungsi untuk memasukkan teks template ke textarea
   function insertTemplate(text) {
     const catatanInput = document.getElementById('catatan');
     if (catatanInput.value) {
@@ -171,23 +169,25 @@
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     submitBtn.disabled = true;
-    submitBtn.innerText = "Menyimpan...";
+    submitBtn.innerText = "Mengunggah foto & menyimpan...";
 
-    const fotoFile = document.getElementById('foto').files[0];
-    let photoBase64 = "";
-    let photoName = "";
+    const fotoInput = document.getElementById('foto');
+    const files = fotoInput.files;
+    let photosArray = [];
 
-    if (fotoFile) {
-      photoName = fotoFile.name;
-      photoBase64 = await toBase64(fotoFile);
+    for (let i = 0; i < files.length; i++) {
+      let base64String = await toBase64(files[i]);
+      photosArray.push({
+        name: files[i].name,
+        base64: base64String
+      });
     }
 
     const payload = {
       tanggal: document.getElementById('tanggal').value,
       rhk: document.getElementById('rhk').value,
       catatan: document.getElementById('catatan').value,
-      photoBase64: photoBase64,
-      photoName: photoName
+      photos: photosArray
     };
 
     fetch(SCRIPT_URL, {
@@ -197,7 +197,7 @@
     .then(res => res.json())
     .then(data => {
       if(data.result === 'success') {
-        alert('Logbook harian berhasil tersimpan!');
+        alert('Logbook dan dokumentasi foto berhasil tersimpan!');
         form.reset();
         document.getElementById('tanggal').valueAsDate = new Date();
       } else {
