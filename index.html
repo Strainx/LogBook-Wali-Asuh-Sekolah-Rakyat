@@ -9,29 +9,51 @@
   <style>
     body { background-color: #f4f6f9; font-family: sans-serif; }
     .card { border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .btn-mic { background-color: #dc3545; color: white; border-radius: 50%; width: 45px; height: 45px; border: none; font-size: 20px; }
+    .btn-mic { background-color: #dc3545; color: white; border-radius: 50%; width: 35px; height: 35px; border: none; font-size: 16px; }
     .btn-mic.recording { animation: pulse 1s infinite; background-color: #198754; }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    
+    /* Styling untuk Tombol Template Cepat */
+    .template-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .chip {
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      border: 1px solid #0d6efd;
+      background-color: #e7f1ff;
+      color: #0d6efd;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chip:hover {
+      background-color: #0d6efd;
+      color: white;
+    }
   </style>
 </head>
 <body class="py-4">
 
 <div class="container" style="max-width: 500px;">
   <div class="card p-4">
-    <h4 class="text-center fw-bold text-primary mb-3">Logbook Harian Wali Asuh</h4>
-    <p class="text-center text-muted small mb-4">SRMA 21 Surabaya</p>
+    <h4 class="text-center fw-bold text-primary mb-1">Logbook Harian Wali Asuh</h4>
+    <p class="text-center text-muted small mb-3">SRMA 21 Surabaya</p>
     
     <form id="logbookForm">
       <!-- 1. Tanggal Kegiatan -->
       <div class="mb-3">
-        <label for="tanggal" class="form-label fw-bold">Tanggal Kegiatan</label>
-        <input type="date" class="form-control" id="tanggal" required>
+        <label for="tanggal" class="form-label fw-bold small">Tanggal Kegiatan</label>
+        <input type="date" class="form-control form-control-sm" id="tanggal" required>
       </div>
 
       <!-- 2. Aspek RHK -->
       <div class="mb-3">
-        <label for="rhk" class="form-label fw-bold">Pilih Aspek RHK</label>
-        <select class="form-select" id="rhk" required>
+        <label for="rhk" class="form-label fw-bold small">Pilih Aspek RHK</label>
+        <select class="form-select form-select-sm" id="rhk" required>
           <option value="" selected disabled>-- Pilih RHK --</option>
           <option value="RHK 1: Bimbingan & Pengajaran">RHK 1: Bimbingan & Pengajaran</option>
           <option value="RHK 2: Kemandirian Peserta Didik">RHK 2: Kemandirian Peserta Didik</option>
@@ -42,26 +64,36 @@
         </select>
       </div>
 
-      <!-- 3. Catatan / Poin Penting + Fitur Speech to Text Indonesia -->
+      <!-- 3. Catatan / Poin Penting + Template & Voice-to-Text -->
       <div class="mb-3">
         <div class="d-flex justify-content-between align-items-center mb-1">
-          <label for="catatan" class="form-label fw-bold m-0">Catatan / Poin Penting</label>
-          <button type="button" id="micBtn" class="btn btn-mic d-flex align-items-center justify-content-center" title="Tekan untuk Bicara (Bahasa Indonesia)">
+          <label for="catatan" class="form-label fw-bold small m-0">Catatan / Poin Penting</label>
+          <button type="button" id="micBtn" class="btn btn-mic d-flex align-items-center justify-content-center" title="Tekan untuk Bicara">
             🎤
           </button>
         </div>
-        <textarea class="form-control" id="catatan" rows="4" placeholder="Ketik atau klik mikrofon untuk bicara (Bahasa Indonesia)..." required></textarea>
-        <small id="speechStatus" class="text-muted d-block mt-1" style="font-size: 12px;"></small>
+        
+        <!-- PINTASAN TEMPLATE CEPAT -->
+        <div class="template-chips">
+          <span class="chip" onclick="insertTemplate('Pelaksanaan sholat berjamaah berjalan tertib, khidmat, dan diikuti seluruh peserta didik.')">🕌 Sholat Berjamaah</span>
+          <span class="chip" onclick="insertTemplate('Pendampingan makan bersama berjalan tertib dan membudayakan antre serta kebersihan.')">🍽️ Makan Bersama</span>
+          <span class="chip" onclick="insertTemplate('Pelaksanaan apel berjalan tertib, pengecekan kesiapan dan kedisiplinan peserta didik tuntas.')">📢 Apel Rutin</span>
+          <span class="chip" onclick="insertTemplate('Pendampingan belajar mandiri berjalan kondusif, peserta didik aktif mengerjakan tugas.')">📚 Belajar Asrama</span>
+          <span class="chip" onclick="insertTemplate('Pengawasan kebersihan dan kerapian kamar/asrama berjalan baik, peserta didik disiplin merawat lingkungan.')">🧹 Kebersihan Asrama</span>
+        </div>
+
+        <textarea class="form-control" id="catatan" rows="4" placeholder="Ketik, pilih template di atas, atau gunakan mikrofon..." required></textarea>
+        <small id="speechStatus" class="text-muted d-block mt-1" style="font-size: 11px;"></small>
       </div>
 
       <!-- 4. Upload Foto Geotag (Opsional) -->
-      <div class="mb-4">
-        <label for="foto" class="form-label fw-bold">Upload Foto Geotag <span class="text-muted fw-normal">(Opsional)</span></label>
-        <input type="file" class="form-control" id="foto" accept="image/*">
+      <div class="mb-3">
+        <label for="foto" class="form-label fw-bold small">Upload Foto Geotag <span class="text-muted fw-normal">(Opsional)</span></label>
+        <input type="file" class="form-control form-control-sm" id="foto" accept="image/*">
       </div>
 
       <!-- Submit Button -->
-      <button type="submit" id="submitBtn" class="btn btn-primary w-100 py-2 fw-bold">Simpan ke Google Sheets</button>
+      <button type="submit" id="submitBtn" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">Simpan ke Google Sheets</button>
     </form>
   </div>
 </div>
@@ -69,6 +101,16 @@
 <script>
   // Set tanggal default hari ini
   document.getElementById('tanggal').valueAsDate = new Date();
+
+  // Fungsi untuk memasukkan teks template ke textarea
+  function insertTemplate(text) {
+    const catatanInput = document.getElementById('catatan');
+    if (catatanInput.value) {
+      catatanInput.value += " " + text; 
+    } else {
+      catatanInput.value = text; 
+    }
+  }
 
   // === FITUR SPEECH TO TEXT (BAHASA INDONESIA) ===
   const micBtn = document.getElementById('micBtn');
@@ -79,7 +121,7 @@
 
   if (SpeechRecognition) {
     const recognition = new SpeechRecognition();
-    recognition.lang = 'id-ID'; // Set bahasa Indonesia
+    recognition.lang = 'id-ID';
     recognition.continuous = false;
     recognition.interimResults = false;
 
@@ -123,8 +165,8 @@
   const form = document.getElementById('logbookForm');
   const submitBtn = document.getElementById('submitBtn');
 
-  // GANTI URL DI BAWAH DENGAN URL WEB APP DARI GOOGLE APPS SCRIPT ANDA
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfR9-xhpxKHgNcVW1A-lNE2fuRXf753022TwVcuh2UFSHKC9YtXrykO2jPdHEJePq_/exec";
+  // TEMPEL URL WEB APP GOOGLE APPS SCRIPT ANDA DI BAWAH INI:
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfR9-xhpxKHgNcVW1A-lNE2fuRXf753022TwVcuh2UFSHKC9YtXrykO2jPdHEJePq_/exec';
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -155,7 +197,7 @@
     .then(res => res.json())
     .then(data => {
       if(data.result === 'success') {
-        alert('Logbook harian & Refleksi AI berhasil tersimpan!');
+        alert('Logbook harian berhasil tersimpan!');
         form.reset();
         document.getElementById('tanggal').valueAsDate = new Date();
       } else {
